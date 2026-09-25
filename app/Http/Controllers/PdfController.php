@@ -147,9 +147,6 @@ class PdfController extends Controller
         }
     }
 
-    /**
-     * Refatoração da função do antigo ollama.php usando a API do Laravel (Http Facade)
-     */
     private function analisarTextoComOllama($textoExtraido)
     {
         $inicio = microtime(true);
