@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.addEventListener('click', () => {
             const temaAtual = document.documentElement.getAttribute('data-theme') || 'dark';
             const novoTema = temaAtual === 'dark' ? 'light' : 'dark';
-            
+
             aplicarTema(novoTema);
             localStorage.setItem('app_theme', novoTema);
         });
@@ -122,21 +122,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (resData.sucesso) {
                             if (cardEl) cardEl.className = 'queue-item concluido';
-                            if (statusEl) statusEl.innerText = 'Concluído';
+
+                            // 1. Atualiza a tag de status no topo do card
+                            if (statusEl) {
+                                if (resData.ja_existe) {
+                                    statusEl.innerText = '⚠️ Já Cadastrado';
+                                    statusEl.style.color = '#e67e22'; // Cor Laranja / Aviso
+                                } else {
+                                    statusEl.innerText = 'Concluído';
+                                }
+                            }
 
                             const dados = resData.dados || {};
 
+                            // 2. Exibe uma mensagem explicativa nos detalhes do card
                             if (detalhesEl) {
                                 detalhesEl.style.display = 'block';
+
+                                const avisoDuplicado = resData.ja_existe? 
+                                `<div style="background: rgba(230, 126, 34, 0.15); color: #e67e22; padding: 6px 10px; border-radius: 4px; font-size: 12px; margin-bottom: 8px; border: 1px solid rgba(230, 126, 34, 0.3);"> <strong>Aviso:</strong> Este arquivo já constava no banco de dados. Os dados antigos foram preservados. </div>`
+                                : '';
+
                                 detalhesEl.innerHTML = `
-                                    <strong>Título:</strong> ${dados.titulo || 'Não identificado pela IA'}<br>
-                                    <strong>Conteúdo:</strong> ${dados.conteudo || 'Não identificado'}<br>
-                                    <strong>Expiração:</strong> ${dados.data_expiracao || 'Não consta'}<br>
-                                    <span style="font-size: 12px; color: var(--text-muted);">⏱️ Tempo: ${resData.tempo_ia}s</span>
-                                `;
+                                ${avisoDuplicado}
+                                <strong>Título:</strong> ${dados.titulo || 'Não identificado pela IA'}<br>
+                                <strong>Conteúdo:</strong> ${dados.conteudo || 'Não identificado'}<br>
+                                <strong>Expiração:</strong> ${dados.data_expiracao || 'Não consta'}<br>
+                                <span style="font-size: 12px; color: var(--text-muted);">⏱️ Tempo: ${resData.tempo_ia}s</span>
+                            `;
                             }
-                        } else {
-                            throw new Error(resData.erro);
                         }
                     } catch (err) {
                         if (cardEl) cardEl.className = 'queue-item erro';
